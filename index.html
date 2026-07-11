@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1208">
+<meta name="description" content="A private mobile app for quickly adding films and series to Rahul's watchlist.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rahul Watch">
+<title>Rahul Watch</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{--ink:#1a1208;--parchment:#faf6ef;--card:#fff9f2;--warm:#c8873a;--muted:#8a7560;--border:#e8dfd0;--green:#2d6b5e;--red:#b33a2f;--blue:#315ca8;--shadow:0 12px 34px rgba(26,18,8,.12)}
+html{background:var(--ink)}
+body{margin:0;min-height:100vh;background:var(--parchment);color:var(--ink);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 30px)}
+button,input,textarea{font:inherit}
+button{touch-action:manipulation}
+.app{width:min(100%,620px);margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 18px}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:42px;height:42px;border-radius:13px;background:var(--ink);color:var(--card);display:grid;place-items:center;font-family:Georgia,serif;font-size:20px;font-weight:700;box-shadow:var(--shadow)}
+.brand h1{font-family:Georgia,serif;font-size:20px;line-height:1;margin:0}.brand h1 span{color:var(--warm);font-style:italic}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.top-actions{display:flex;align-items:center;gap:7px}.icon-btn{border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:10px;min-width:40px;height:40px;padding:0 10px;font-size:17px}.icon-btn:active{transform:scale(.97)}
+.status-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}.status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:var(--card);border:1px solid var(--border);padding:5px 9px;color:var(--muted);font-size:11px}.dot{width:7px;height:7px;border-radius:50%;background:var(--green)}.status.offline .dot{background:var(--red)}.status.queue .dot{background:var(--warm)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px;box-shadow:0 5px 18px rgba(26,18,8,.05);margin-bottom:14px}
+.searchbox{position:relative}.searchbox input{width:100%;height:52px;padding:0 46px 0 44px;border:1px solid var(--border);border-radius:15px;background:#fffdf9;color:var(--ink);font-size:16px;outline:none}.searchbox input:focus{border-color:var(--warm);box-shadow:0 0 0 3px rgba(200,135,58,.12)}.search-icon{position:absolute;left:15px;top:15px;font-size:19px}.clear-btn{display:none;position:absolute;right:8px;top:8px;width:36px;height:36px;border:0;background:transparent;color:var(--muted);font-size:20px}
+.helper{font-size:12px;color:var(--muted);margin:9px 2px 0;line-height:1.4}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.result{position:relative;text-align:left;border:1px solid var(--border);background:#fffdf9;border-radius:14px;padding:0;overflow:hidden;color:var(--ink)}.result:active{transform:scale(.985)}.result img,.poster-ph{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:linear-gradient(145deg,#e8dfd0,#d8cabb)}.poster-ph{display:grid;place-items:center;font-size:34px}.result-info{padding:9px}.result-title{font-family:Georgia,serif;font-weight:700;font-size:13px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.result-meta{font-size:11px;color:var(--muted);margin-top:5px}.existing{position:absolute;top:7px;right:7px;border-radius:999px;padding:4px 7px;background:rgba(45,107,94,.92);color:white;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.loading,.empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 10px}.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--warm);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-4px;margin-right:7px}@keyframes spin{to{transform:rotate(360deg)}}
+.editor{display:none}.editor.on{display:block}.selected{display:flex;gap:13px;align-items:flex-start}.selected img,.selected .poster-ph{width:76px;height:114px;border-radius:10px;flex:0 0 auto}.selected-text{min-width:0;flex:1}.media-badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#fdecd8;color:var(--warm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}.media-badge.show{background:#ddf0ec;color:var(--green)}.selected-title{font-family:Georgia,serif;font-size:21px;line-height:1.12;margin:8px 0 5px}.selected-meta{font-size:12px;color:var(--muted);line-height:1.45}.change-btn{margin-top:9px;border:0;background:transparent;color:var(--warm);padding:0;font-size:12px;font-weight:700}
+.segment{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:var(--parchment);padding:5px;border-radius:13px;margin-top:15px}.segment button{height:40px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:13px;font-weight:700}.segment button.on{background:var(--card);color:var(--ink);box-shadow:0 2px 9px rgba(26,18,8,.09)}
+.form-area{margin-top:15px}.field{margin-top:14px}.field label,.field-label{display:block;margin:0 0 7px;font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}.field input[type=date],.field textarea{width:100%;border:1px solid var(--border);border-radius:12px;background:#fffdf9;color:var(--ink);outline:none}.field input[type=date]{height:46px;padding:0 12px}.field textarea{min-height:82px;padding:11px 12px;resize:vertical;line-height:1.45}.field input:focus,.field textarea:focus{border-color:var(--warm);box-shadow:0 0 0 3px rgba(200,135,58,.1)}
+.rating-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.rating-btn{height:39px;border:1px solid var(--border);border-radius:10px;background:#fffdf9;color:var(--muted);font-size:13px;font-weight:700}.rating-btn.on{background:var(--warm);border-color:var(--warm);color:white}.rating-caption{margin-top:7px;font-size:12px;color:var(--muted)}
+.check-row{display:flex;align-items:flex-start;gap:9px;margin-top:10px;font-size:13px;line-height:1.35;color:var(--ink)}.check-row input{width:18px;height:18px;margin:0;accent-color:var(--warm);flex:0 0 auto}
+.save-btn{width:100%;height:52px;border:0;border-radius:14px;background:var(--warm);color:white;font-weight:800;margin-top:18px;box-shadow:0 7px 18px rgba(200,135,58,.26)}.save-btn:disabled{opacity:.5;box-shadow:none}.save-btn:active{transform:scale(.99)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.section-head h2{font-family:Georgia,serif;font-size:17px;margin:0}.text-link{border:0;background:transparent;color:var(--warm);font-size:12px;font-weight:700;padding:5px}
+.recent-list{display:flex;flex-direction:column}.recent-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.recent-item:last-child{border-bottom:0}.recent-item img,.recent-ph{width:42px;height:63px;border-radius:7px;object-fit:cover;background:var(--border);display:grid;place-items:center}.recent-info{min-width:0;flex:1}.recent-title{font-family:Georgia,serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.recent-meta{font-size:11px;color:var(--muted);margin-top:4px}.recent-rating{font-family:Georgia,serif;color:var(--warm);font-weight:700;font-size:15px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translate(-50%,20px);width:min(calc(100% - 28px),560px);padding:12px 14px;border-radius:13px;background:var(--ink);color:white;font-size:13px;line-height:1.35;opacity:0;pointer-events:none;transition:.22s;z-index:50;box-shadow:var(--shadow)}.toast.on{opacity:1;transform:translate(-50%,0)}.toast.err{background:var(--red)}
+.sheet{display:none;position:fixed;inset:0;background:rgba(26,18,8,.48);z-index:70;align-items:flex-end}.sheet.on{display:flex}.sheet-card{width:100%;background:var(--card);border-radius:20px 20px 0 0;padding:19px 18px calc(env(safe-area-inset-bottom) + 22px);box-shadow:0 -10px 40px rgba(26,18,8,.18)}.sheet-card h3{font-family:Georgia,serif;margin:0 0 10px;font-size:19px}.sheet-card p{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 14px}.sheet-card button{width:100%;height:46px;border:0;border-radius:12px;background:var(--ink);color:white;font-weight:700}
+.footer{text-align:center;color:var(--muted);font-size:11px;line-height:1.5;padding:8px 20px}.footer a{color:var(--warm);font-weight:700;text-decoration:none}
+@media(min-width:520px){.results{grid-template-columns:repeat(3,minmax(0,1fr))}.rating-grid{grid-template-columns:repeat(10,1fr)}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="topbar">
+    <div class="brand"><div class="logo">R</div><div><h1>Rahul <span>Watch</span></h1><p>Quick mobile add</p></div></div>
+    <div class="top-actions"><button class="icon-btn" id="install-btn" title="Install app" aria-label="Install app">＋</button><button class="icon-btn" id="reload-btn" title="Reload watchlist" aria-label="Reload watchlist">↻</button></div>
+  </div>
+
+  <div class="status-row">
+    <div class="status" id="network-status"><span class="dot"></span><span>Online</span></div>
+    <div class="status queue" id="queue-status" style="display:none"><span class="dot"></span><span id="queue-label">0 pending</span></div>
+    <div class="status"><span id="entry-count">Loading watchlist…</span></div>
+  </div>
+
+  <section class="panel">
+    <div class="searchbox">
+      <span class="search-icon">⌕</span>
+      <input id="search" type="search" inputmode="search" autocomplete="off" placeholder="Search a film or series…" aria-label="Search a film or series">
+      <button class="clear-btn" id="clear-search" aria-label="Clear search">×</button>
+    </div>
+    <p class="helper">Type part of a title. Select the correct result, add your details and save.</p>
+    <div class="results" id="results"></div>
+  </section>
+
+  <section class="panel editor" id="editor">
+    <div class="selected">
+      <div id="selected-poster"></div>
+      <div class="selected-text">
+        <span class="media-badge" id="selected-badge">Movie</span>
+        <div class="selected-title" id="selected-title"></div>
+        <div class="selected-meta" id="selected-meta"></div>
+        <button class="change-btn" id="change-title">Choose another title</button>
+      </div>
+    </div>
+
+    <div class="segment" id="destination-segment">
+      <button type="button" class="on" data-dest="watched" id="dest-watched">Watched</button>
+      <button type="button" data-dest="towatch">To Watch</button>
+    </div>
+
+    <div class="form-area" id="watched-fields">
+      <div class="field" id="rating-field">
+        <span class="field-label">My rating</span>
+        <div class="rating-grid" id="rating-grid"></div>
+        <div class="rating-caption" id="rating-caption">No rating selected</div>
+      </div>
+      <div class="field" id="date-field">
+        <label for="watched-date">Watched date</label>
+        <input type="date" id="watched-date">
+        <label class="check-row"><input type="checkbox" id="unknown-date"><span>I don’t know when I watched this</span></label>
+      </div>
+      <div class="field">
+        <label for="review">Review <span style="text-transform:none;letter-spacing:0;font-weight:500">(optional)</span></label>
+        <textarea id="review" placeholder="A quick thought…"></textarea>
+      </div>
+    </div>
+
+    <button class="save-btn" id="save-btn">Save to watchlist</button>
+  </section>
+
+  <section class="panel" id="recent-panel">
+    <div class="section-head"><h2>Recently added</h2><button class="text-link" id="sync-btn">Sync pending</button></div>
+    <div class="recent-list" id="recent-list"><div class="loading"><span class="spinner"></span>Loading…</div></div>
+  </section>
+
+  <div class="footer">Collections and detailed season tracking remain in the <a href="../watchlist-admin.html">full admin page</a>.</div>
+</main>
+
+<div class="toast" id="toast"></div>
+<div class="sheet" id="install-sheet" role="dialog" aria-modal="true">
+  <div class="sheet-card">
+    <h3>Install Rahul Watch</h3>
+    <p id="install-copy">Open your browser menu and choose “Add to Home Screen” or “Install app”.</p>
+    <button id="close-install">Close</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+const DB_URL='https://script.google.com/macros/s/AKfycbzpa1fUDZDXfQT5L6SxQRNf1zEFk-tpHV_2Tq9CY2iG4iSqa4W__Rnqs6fshnGJ0pnvRQ/exec';
+const TMDB_KEY='60a9d5e588c206cf1d895394aa72d581';
+const QUEUE_KEY='rahul-watch-pending-v1';
+const LANG_NAMES={af:'Afrikaans',ar:'Arabic',bg:'Bulgarian',bn:'Bengali',cs:'Czech',da:'Danish',de:'German',el:'Greek',en:'English',es:'Spanish',et:'Estonian',fa:'Persian',fi:'Finnish',fr:'French',gu:'Gujarati',he:'Hebrew',hi:'Hindi',hr:'Croatian',hu:'Hungarian',id:'Indonesian',it:'Italian',ja:'Japanese',kn:'Kannada',ko:'Korean',lt:'Lithuanian',lv:'Latvian',ml:'Malayalam',mr:'Marathi',ms:'Malay',nl:'Dutch',no:'Norwegian',pa:'Punjabi',pl:'Polish',pt:'Portuguese',ro:'Romanian',ru:'Russian',sk:'Slovak',sl:'Slovenian',sq:'Albanian',sr:'Serbian',sv:'Swedish',sw:'Swahili',ta:'Tamil',te:'Telugu',th:'Thai',tr:'Turkish',uk:'Ukrainian',ur:'Urdu',vi:'Vietnamese',zh:'Chinese',cn:'Cantonese',tl:'Filipino'};
+let entries=[];
+let selected=null;
+let destination='watched';
+let rating=0;
+let searchTimer=null;
+let installPrompt=null;
+
+const $=id=>document.getElementById(id);
+function localISODate(value=Date.now()){const d=new Date(value);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function monthYearFromISO(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||''))return '';return new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB',{month:'short',year:'numeric'});}
+function escapeHtml(value=''){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function jsonp(url,file){return new Promise((resolve,reject)=>{const cb=`cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;const script=document.createElement('script');const timeout=setTimeout(()=>finish(new Error('Read timed out')),12000);function finish(error,data){clearTimeout(timeout);delete window[cb];script.remove();error?reject(error):resolve(data);}window[cb]=data=>finish(null,data);script.onerror=()=>finish(new Error('Could not load watchlist'));script.src=`${url}?file=${encodeURIComponent(file)}&callback=${encodeURIComponent(cb)}&_=${Date.now()}`;document.head.appendChild(script);});}
+async function driveRead(file){return jsonp(DB_URL,file);}
+async function driveWrite(file,data){const response=await fetch(DB_URL,{method:'POST',body:JSON.stringify({file,data})});if(!response.ok)throw new Error(`Save failed (${response.status})`);return response;}
+function isDuplicate(entry,list=entries){return list.some(e=>(entry.tmdbId&&String(e.tmdbId)===String(entry.tmdbId)&&e.type===entry.type)||(entry.imdbId&&e.imdbId===entry.imdbId));}
+function getQueue(){try{const value=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');return Array.isArray(value)?value:[];}catch{return [];}}
+function setQueue(queue){localStorage.setItem(QUEUE_KEY,JSON.stringify(queue));updateQueueStatus();}
+function updateQueueStatus(){const queue=getQueue();$('queue-status').style.display=queue.length?'inline-flex':'none';$('queue-label').textContent=`${queue.length} pending`;}
+function showToast(message,error=false){const toast=$('toast');toast.textContent=message;toast.className=`toast on${error?' err':''}`;clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.className='toast',3300);}
+function updateNetwork(){const online=navigator.onLine;$('network-status').classList.toggle('offline',!online);$('network-status').querySelector('span:last-child').textContent=online?'Online':'Offline';}
+
+async function loadEntries(showMessage=false){try{const data=await driveRead('watchlist.json');if(!Array.isArray(data))throw new Error('Invalid watchlist data');entries=data;$('entry-count').textContent=`${entries.length} entries`;renderRecent();if(showMessage)showToast('Watchlist refreshed');return true;}catch(error){$('entry-count').textContent='Watchlist unavailable';renderRecent();if(showMessage)showToast(error.message||'Could not refresh',true);return false;}}
+function renderRecent(){const list=$('recent-list');const recent=[...entries].sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).slice(0,8);if(!recent.length){list.innerHTML='<div class="empty">No entries loaded.</div>';return;}list.innerHTML=recent.map(e=>{const knownDate=!e.watchedDateUnknown&&(e.watchedDate||e.watched);const meta=[e.type==='show'?'Series':'Movie',e.toWatch?'To Watch':knownDate?`Watched ${escapeHtml(knownDate)}`:e.year].filter(Boolean).join(' · ');return `<div class="recent-item">${e.poster?`<img src="${escapeHtml(e.poster)}" alt="">`:'<div class="recent-ph">▣</div>'}<div class="recent-info"><div class="recent-title">${escapeHtml(e.title)}</div><div class="recent-meta">${meta}</div></div>${!e.toWatch&&e.myRating?`<div class="recent-rating">${e.myRating}/10</div>`:''}</div>`;}).join('');}
+
+function renderRatings(){const grid=$('rating-grid');grid.innerHTML=Array.from({length:10},(_,i)=>`<button type="button" class="rating-btn${rating===i+1?' on':''}" data-rating="${i+1}">${i+1}</button>`).join('');$('rating-caption').textContent=rating?`${rating}/10 selected`:'No rating selected';grid.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{rating=Number(btn.dataset.rating);renderRatings();}));}
+function setDestination(value){destination=value;document.querySelectorAll('#destination-segment button').forEach(btn=>btn.classList.toggle('on',btn.dataset.dest===value));$('watched-fields').style.display=value==='watched'?'block':'none';}
+function resetEditor(){selected=null;rating=0;destination=new URLSearchParams(location.search).get('mode')==='towatch'?'towatch':'watched';$('editor').classList.remove('on');$('review').value='';$('unknown-date').checked=false;$('watched-date').disabled=false;$('watched-date').value=localISODate();setDestination(destination);renderRatings();}
+function clearSearch(){clearTimeout(searchTimer);$('search').value='';$('clear-search').style.display='none';$('results').innerHTML='';}
+
+async function searchTitles(query){const results=$('results');if(query.length<2){results.innerHTML='';return;}results.innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>Searching TMDB…</div>';try{const response=await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false&page=1`);if(!response.ok)throw new Error('Search failed');const data=await response.json();const items=(data.results||[]).filter(item=>['movie','tv'].includes(item.media_type)).slice(0,12);if(!items.length){results.innerHTML='<div class="empty" style="grid-column:1/-1">No matching films or series.</div>';return;}results.innerHTML=items.map(item=>{const type=item.media_type==='tv'?'show':'movie';const title=item.title||item.name||'';const year=(item.release_date||item.first_air_date||'').slice(0,4);const poster=item.poster_path?`https://image.tmdb.org/t/p/w342${item.poster_path}`:'';const already=entries.some(e=>String(e.tmdbId)===String(item.id)&&e.type===type);return `<button type="button" class="result" data-id="${item.id}" data-type="${type}">${poster?`<img src="${poster}" alt="" loading="lazy">`:'<div class="poster-ph">▣</div>'}${already?'<span class="existing">Already added</span>':''}<div class="result-info"><div class="result-title">${escapeHtml(title)}</div><div class="result-meta">${type==='show'?'Series':'Movie'}${year?` · ${year}`:''}</div></div></button>`;}).join('');results.querySelectorAll('.result').forEach(card=>card.addEventListener('click',()=>selectTitle(card.dataset.id,card.dataset.type)));}catch(error){results.innerHTML='<div class="empty" style="grid-column:1/-1">Search failed. Check your connection.</div>';}}
+
+async function selectTitle(tmdbId,type){$('results').innerHTML='<div class="loading" style="grid-column:1/-1"><span class="spinner"></span>Loading details…</div>';try{const ep=type==='show'?'tv':'movie';const [details,external,credits]=await Promise.all([
+fetch(`https://api.themoviedb.org/3/${ep}/${tmdbId}?api_key=${TMDB_KEY}`).then(r=>{if(!r.ok)throw new Error('Title details failed');return r.json();}),
+fetch(`https://api.themoviedb.org/3/${ep}/${tmdbId}/external_ids?api_key=${TMDB_KEY}`).then(r=>r.json()),
+fetch(`https://api.themoviedb.org/3/${ep}/${tmdbId}/credits?api_key=${TMDB_KEY}`).then(r=>r.json())]);
+const title=details.title||details.name||'';const year=(details.release_date||details.first_air_date||'').slice(0,4);const poster=details.poster_path?`https://image.tmdb.org/t/p/w500${details.poster_path}`:'';const language=LANG_NAMES[details.original_language]||details.original_language||'';const cast=(credits.cast||[]).slice(0,10).map(p=>p.name);const director=type==='movie'?(credits.crew||[]).filter(p=>p.job==='Director').map(p=>p.name).join(', '):(details.created_by||[]).map(p=>p.name).join(', ');selected={id:`${Date.now()}`,tmdbId:String(tmdbId),imdbId:external.imdb_id||'',type,title,year,poster,language,cast,director,status:details.status||'',franchise:type==='movie'&&details.belongs_to_collection?details.belongs_to_collection.name:'',franchiseId:type==='movie'&&details.belongs_to_collection?details.belongs_to_collection.id:null,seasonsSummary:type==='show'?(details.seasons||[]).filter(s=>s.season_number>0).map(s=>({season:s.season_number,name:s.name||`Season ${s.season_number}`})):[]};
+$('selected-poster').innerHTML=poster?`<img src="${poster}" alt="">`:'<div class="poster-ph">▣</div>';$('selected-badge').textContent=type==='show'?'Series':'Movie';$('selected-badge').className=`media-badge${type==='show'?' show':''}`;$('selected-title').textContent=title;$('selected-meta').textContent=[year,language,type==='show'?`${selected.seasonsSummary.length} seasons`:director].filter(Boolean).join(' · ');$('dest-watched').textContent=type==='show'?'Watching / Watched':'Watched';$('rating-field').style.display=type==='movie'?'block':'none';$('date-field').style.display=type==='movie'?'block':'none';rating=0;$('review').value='';$('watched-date').value=localISODate();$('unknown-date').checked=false;$('watched-date').disabled=false;renderRatings();setDestination(destination);$('editor').classList.add('on');clearSearch();$('editor').scrollIntoView({behavior:'smooth',block:'start'});}catch(error){showToast(error.message||'Could not load title',true);$('results').innerHTML='';}}
+
+async function fetchSeasonsForEntry(entry){if(entry.type!=='show')return [];const seasons=entry.seasonsSummary||[];const output=[];for(const season of seasons){const response=await fetch(`https://api.themoviedb.org/3/tv/${entry.tmdbId}/season/${season.season}?api_key=${TMDB_KEY}`);if(!response.ok)continue;const data=await response.json();output.push({season:season.season,name:data.name||season.name,episodes:(data.episodes||[]).map(ep=>({ep:ep.episode_number,name:ep.name,airDate:ep.air_date||'',watched:false})),rating:0,review:'',reviewDone:false});}return output;}
+function buildMovieDates(entry){if($('unknown-date').checked){entry.watchedDateUnknown=true;entry.watchedDate='';entry.watched='';delete entry.watchedAt;}else{const date=$('watched-date').value||localISODate();entry.watchedDate=date;entry.watched=monthYearFromISO(date);delete entry.watchedDateUnknown;}}
+async function buildEntry(){const now=Date.now();const entry={...selected,id:`${now}`,addedAt:now,toWatch:destination==='towatch',myRating:0,review:'',watched:''};delete entry.seasonsSummary;if(destination==='watched'){entry.review=$('review').value.trim();if(entry.type==='movie'){entry.myRating=rating;buildMovieDates(entry);}else{entry.seasonsData=await fetchSeasonsForEntry(selected);entry.tracking=true;entry.lastActivity=now;}}else if(entry.type==='show'){entry.seasonsData=await fetchSeasonsForEntry(selected);}return entry;}
+async function persistEntry(entry){const latest=await driveRead('watchlist.json');if(!Array.isArray(latest))throw new Error('Server returned invalid watchlist data');if(isDuplicate(entry,latest))throw new Error('This title is already in your watchlist');const merged=[entry,...latest];await driveWrite('watchlist.json',merged);const verified=await driveRead('watchlist.json');if(!Array.isArray(verified)||!verified.some(e=>e.id===entry.id))throw new Error('The server did not confirm the save');entries=verified;return true;}
+async function saveSelected(){if(!selected)return;const button=$('save-btn');button.disabled=true;button.textContent=selected.type==='show'?'Preparing series…':'Saving…';try{const entry=await buildEntry();button.textContent='Saving…';try{await persistEntry(entry);showToast(`“${entry.title}” saved`);resetEditor();renderRecent();$('entry-count').textContent=`${entries.length} entries`;}catch(error){if(/already in your watchlist/i.test(error.message||'')){showToast(error.message,true);}else{const queue=getQueue();if(!isDuplicate(entry,queue)){queue.push(entry);setQueue(queue);}showToast('Could not reach the server. Saved to the phone’s pending queue.',true);}resetEditor();renderRecent();}}catch(error){showToast(error.message||'Could not prepare entry',true);}finally{button.disabled=false;button.textContent='Save to watchlist';}}
+async function flushQueue(){const queue=getQueue();if(!queue.length){showToast('Nothing is waiting to sync');return;}if(!navigator.onLine){showToast('You are offline',true);return;}$('sync-btn').disabled=true;$('sync-btn').textContent='Syncing…';const remaining=[];let saved=0;for(const entry of queue){try{await persistEntry(entry);saved++;}catch(error){if(/already/.test(error.message)){saved++;}else remaining.push(entry);}}setQueue(remaining);renderRecent();$('entry-count').textContent=`${entries.length} entries`;$('sync-btn').disabled=false;$('sync-btn').textContent='Sync pending';showToast(remaining.length?`${saved} synced, ${remaining.length} still pending`:`${saved} pending entr${saved===1?'y':'ies'} synced`,remaining.length>0);}
+
+$('search').addEventListener('input',event=>{const query=event.target.value.trim();$('clear-search').style.display=query?'block':'none';clearTimeout(searchTimer);searchTimer=setTimeout(()=>searchTitles(query),350);});
+$('search').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();clearTimeout(searchTimer);searchTitles(event.currentTarget.value.trim());}});
+$('clear-search').addEventListener('click',clearSearch);
+$('change-title').addEventListener('click',()=>{resetEditor();$('search').focus();});
+document.querySelectorAll('#destination-segment button').forEach(button=>button.addEventListener('click',()=>setDestination(button.dataset.dest)));
+$('unknown-date').addEventListener('change',event=>{const unknown=event.currentTarget.checked;$('watched-date').disabled=unknown;if(unknown)$('watched-date').value='';else if(!$('watched-date').value)$('watched-date').value=localISODate();});
+$('save-btn').addEventListener('click',saveSelected);
+$('reload-btn').addEventListener('click',()=>loadEntries(true));
+$('sync-btn').addEventListener('click',flushQueue);
+window.addEventListener('online',()=>{updateNetwork();flushQueue();});
+window.addEventListener('offline',updateNetwork);
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
+$('install-btn').addEventListener('click',async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;}else{$('install-copy').textContent=/iphone|ipad|ipod/i.test(navigator.userAgent)?'In Safari, tap Share, then choose “Add to Home Screen”.':'Open your browser menu and choose “Install app” or “Add to Home Screen”.';$('install-sheet').classList.add('on');}});
+$('close-install').addEventListener('click',()=>$('install-sheet').classList.remove('on'));
+$('install-sheet').addEventListener('click',event=>{if(event.target===$('install-sheet'))$('install-sheet').classList.remove('on');});
+
+async function init(){updateNetwork();updateQueueStatus();resetEditor();await loadEntries();if(navigator.onLine&&getQueue().length)flushQueue();if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));}}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Rahul Watch",
+  "short_name": "Rahul Watch",
+  "description": "Quickly search and add films and series to Rahul's watchlist.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf6ef",
+  "theme_color": "#1a1208",
+  "categories": ["entertainment", "lifestyle"],
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Add watched", "short_name": "Watched", "url": "./index.html?mode=watched", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Add to watch", "short_name": "To Watch", "url": "./index.html?mode=towatch", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]}
+  ]
+}
