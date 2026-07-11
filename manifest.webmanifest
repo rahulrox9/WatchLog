@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Rahul Watch",
-  "short_name": "Rahul Watch",
+  "name": "Rahul's WatchLog",
+  "short_name": "WatchLog",
   "description": "Quickly search and add films and series to Rahul's watchlist.",
   "start_url": "./index.html",
   "scope": "./",
